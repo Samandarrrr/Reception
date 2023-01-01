@@ -1,0 +1,37 @@
+#!/usr/bin/env php
+
+<?php
+
+use Src\DB\ConnectToDb;
+use Src\Services\SendMailService;
+
+require './vendor/autoload.php';
+require './src/Services/SendEmailService.php';
+require './src/DB/ConnectToDb.php';
+
+$connect_db = new ConnectToDb();
+
+$link = $connect_db->connect();
+$query = 'SELECT * FROM ORDERS WHERE notification = 0';
+$result = mysqli_query($link, $query);
+$result_assoc = mysqli_fetch_all($result, MYSQLI_ASSOC);
+$send = new SendMailService();
+
+foreach ($result_assoc as $item) {
+
+    $query = 'SELECT email FROM USERS WHERE ID = ' . $item['user_id'];
+    $result = mysqli_query($link, $query);
+    $email = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+    $info = $send->send($email[0]['email'], 'Kabinet band qilindi', "Siz " . $item['cabinet_number'] . " chi kabinetni " . $item['start_date'] . " dan " . $item['end_date'] . " gacha band qildingiz");
+
+    echo $info;
+
+    $query = 'UPDATE ORDERS SET notification=1 WHERE ID = ' . $item['id'];
+    $result = mysqli_query($link, $query);
+
+    sleep(1);
+}
+
+$link->close();
+

@@ -1,0 +1,17 @@
+#!/usr/bin/env php
+
+<?php
+
+use Src\DB\ConnectToDb;
+
+require 'src/DB/ConnectToDb.php';
+
+$connect = new ConnectToDb();
+
+$cabinet_number = readline('Enter cabinet number: ');
+$from = readline('Enter from date: ');
+$to = readline('Enter to date: ');
+
+$isEm = $connect->isCabinetEmpty($cabinet_number, $from, $to);
+
+echo $isEm;
